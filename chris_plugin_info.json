@@ -1,0 +1,57 @@
+{
+  "type": "ds",
+  "parameters": [
+    {
+      "name": "filter",
+      "type": "str",
+      "optional": true,
+      "flag": "--filter",
+      "short_flag": "-f",
+      "action": "store",
+      "help": "Input path filter. Paths which do not match this regex are excluded.",
+      "default": ".*",
+      "ui_exposed": true
+    },
+    {
+      "name": "expression",
+      "type": "str",
+      "optional": true,
+      "flag": "--expression",
+      "short_flag": "-e",
+      "action": "store",
+      "help": "Regular expression to match paths. See https://docs.rs/regex/1.5.5/regex/#syntax",
+      "default": "(.*)",
+      "ui_exposed": true
+    },
+    {
+      "name": "replacement",
+      "type": "str",
+      "optional": true,
+      "flag": "--replace",
+      "short_flag": "-r",
+      "action": "store",
+      "help": "Replacement string with capture groups. See https://docs.rs/regex/1.5.5/regex/#grouping-and-flags",
+      "default": "\\1",
+      "ui_exposed": true
+    }
+  ],
+  "icon": "",
+  "authors": "FNNDSC <dev@babyMRI.org>",
+  "title": "Bulk Rename",
+  "category": "Utility",
+  "description": "A ChRIS plugin to rename paths using regex",
+  "documentation": "https://github.com/FNNDSC/pl-bulk-rename",
+  "license": "MIT",
+  "version": "0.1.0",
+  "selfpath": "/usr/local/bin",
+  "selfexec": "bulkrename",
+  "execshell": "/docker-entrypoint.sh",
+  "min_number_of_workers": 1,
+  "max_number_of_workers": 1,
+  "min_memory_limit": "",
+  "max_memory_limit": "",
+  "min_cpu_limit": "",
+  "max_cpu_limit": "",
+  "min_gpu_limit": 0,
+  "max_gpu_limit": 0
+}

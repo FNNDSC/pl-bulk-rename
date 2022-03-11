@@ -1,0 +1,21 @@
+[package]
+name = "bulkrename"
+version = "0.1.0"
+edition = "2021"
+
+readme = "README.md"
+description = "Bulk rename ChRIS ds plugin"
+repository = "https://github.com/FNNDSC/pl-bulk-rename"
+license = "MIT"
+categories = ["command-line-utilities"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "3.1.6", features = ["derive"] }
+fs_extra = "1.2.0"
+regex = "1.5.5"
+ansi_term = "0.12"
+walkdir = "2.3.2"
+anyhow = "1.0.56"
+lazy_static = "1.4.0"
