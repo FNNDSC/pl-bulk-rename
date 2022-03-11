@@ -19,15 +19,15 @@ disable_help_subcommand = true
 )]
 struct Cli {
     /// Input path filter. Paths which do not match this regex are excluded.
-    #[clap(short, long, default_value = ".*")]
+    #[clap(short, long)]
     filter: String,
 
     /// Regular expression to match paths
-    #[clap(short, long, default_value = "(.*)")]
+    #[clap(short, long)]
     expression: String,
 
     /// Replacement string with capture groups
-    #[clap(short, long, default_value = "$0")]
+    #[clap(short, long)]
     replace: String,
 
     /// Silence output
