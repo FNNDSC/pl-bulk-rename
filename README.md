@@ -67,3 +67,86 @@ bulkrename --filter '^[abc]$' \
            --replace 'pear_$1' \
            examples/input examples/dirwise
 ```
+
+### Use Case
+
+Factor levels (i.e. the independent variable) of a data experiment are
+represented in a  _ChRIS_ feed as parallel/sibling branches of a tree.
+
+Consider this example data experiment:
+
+1. We create a feed using `pl-dircopy` which produces our input files
+   `subject1.txt`, `subject2.txt`, `subject3.txt`, ...
+2. We run 3 instances of a _ds_ plugin `pl-experiment` which, for every
+   `*.txt` in its input directory, creates a resulting `*.dat` in the output directory.
+   The plugin instance IDs are 4, 5, 6.
+3. Over all the results we want to perform aggregation and data visualization
+   to arrive at a scientific conclusion.
+
+Joining the branches is done using
+[`pl-topologicalcopy`](https://github.com/FNNDSC/pl-topologicalcopy).
+Since the outputs of `pl-experiment` for each instance is the same
+(something like `subject1.dat`, `subject2.dat`, `subject3.dat`, ...)
+we use `--groupByInstance` so that the output of the feed-join looks like
+
+```
+pl-topologicalcopy/data
+├── 4
+│   ├── subject1.dat
+│   ├── subject2.dat
+│   └── subject3.dat
+├── 5
+│   ├── subject1.dat
+│   ├── subject2.dat
+│   └── subject3.dat
+└── 6
+    ├── subject1.dat
+    ├── subject2.dat
+    └── subject3.dat
+```
+
+Next, we use **`pl-bulk-rename`** to reorganize the results by subject,
+which makes more sense in the context of our downstream analysis.
+
+```
+pl-bulk-rename/data
+├── subject1
+│   ├── plinst4.dat
+│   ├── plinst5.dat
+│   └── plinst6.dat
+├── subject2
+│   ├── plinst4.dat
+│   ├── plinst5.dat
+│   └── plinst6.dat
+└── subject3
+    ├── plinst4.dat
+    ├── plinst5.dat
+    └── plinst6.dat
+```
+
+In the [_ChRIS_ user interface](https://github.com/FNNDSC/ChRIS_ui/),
+**`pl-bulk-rename`** would be configured like this:
+
+![Screenshot of parameters in *ChRIS_ui*](screenshot.png)
+
+The whole feed for the experiment will look something like
+
+```
+      O      id=3  pl-dircopy --dir uploads/user/inputData
+    / | \
+   /  |  \
+  O   |   |  id=4  pl-experiment --factor 0.05
+  |   O   |  id=5  pl-experiment --factor 0.10
+  |   |   O  id=6  pl-experiment --factor 0.15
+   \  |  /
+    \ | /
+      O      id=7  pl-topologicalcopy --plugininstances 4,5,6 --groupByInstance
+      |
+      O      id=8  pl-bulk-rename --filter      '.*\.dat'              \
+      |                           --expression  '^(\d+)/(.*)(\.dat)$'  \
+      |                           --replace     '$2/plinst$1$3'
+      |
+      O      id=9  pl-aggregate-stats
+      |
+      O      id=10 pl-plot-data
+```
