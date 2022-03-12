@@ -1,21 +1,23 @@
-use std::path::{PathBuf};
-use clap::{Parser};
-use regex::{Regex};
-use walkdir::{WalkDir};
-use anyhow::{Context, Result, Ok, bail};
-use ansi_term::{ANSIString};
-use ansi_term::Style;
+use ansi_term::ANSIString;
 use ansi_term::Colour::{Cyan, Green};
-use std::fs::create_dir_all;
+use ansi_term::Style;
+use anyhow::{bail, Context, Ok, Result};
+use clap::Parser;
 use fs_extra;
 use lazy_static::lazy_static;
+use regex::Regex;
+use std::fs::create_dir_all;
+use std::path::PathBuf;
+use walkdir::WalkDir;
 
 #[derive(Parser)]
-#[clap(author, version,
-about = "Bulk rename using regular expressions",
-long_about = "A fast and simple tool for copying data from an input directory to an output directory under different paths based on regular expressions.\nThe syntax is based on the \"regex\" crate: see https://docs.rs/regex/1.5.5/regex/#grouping-and-flags",
-propagate_version = true,
-disable_help_subcommand = true
+#[clap(
+    author,
+    version,
+    about = "Bulk rename using regular expressions",
+    long_about = "A fast and simple tool for copying data from an input directory to an output directory under different paths based on regular expressions.\nThe syntax is based on the \"regex\" crate: see https://docs.rs/regex/1.5.5/regex/#grouping-and-flags",
+    propagate_version = true,
+    disable_help_subcommand = true
 )]
 struct Cli {
     /// Input path filter. Paths which do not match this regex are excluded.
@@ -51,7 +53,6 @@ struct Cli {
     output_dir: PathBuf,
 }
 
-
 fn main() -> Result<()> {
     let args: Cli = Cli::parse();
 
@@ -76,7 +77,9 @@ fn main() -> Result<()> {
     let mut did_nothing = true;
 
     for (rel, input_path) in filter_input_dir(&args.input_dir, &filter) {
-        let renamed = expression.replace(rel.to_str().unwrap(), &args.replace).to_string();
+        let renamed = expression
+            .replace(rel.to_str().unwrap(), &args.replace)
+            .to_string();
         let output_path = args.output_dir.join(&renamed);
 
         if output_path.exists() {
@@ -93,7 +96,11 @@ fn main() -> Result<()> {
     }
 
     if did_nothing {
-        bail!("No paths under {:?} matched by --filter={}", &args.input_dir, &args.filter)
+        bail!(
+            "No paths under {:?} matched by --filter={}",
+            &args.input_dir,
+            &args.filter
+        )
     }
     Ok(())
 }
@@ -105,22 +112,21 @@ fn cpr(src: &PathBuf, dst: &PathBuf) -> Result<()> {
         .with_context(|| format!("Could not create parent directory {:?}", parent_dir))?;
     if src.is_file() {
         fs_extra::file::copy(src, dst, &*FILE_COPY_OPTIONS)?;
-    }
-    else if src.is_dir() {
+    } else if src.is_dir() {
         fs_extra::dir::copy(src, dst, &*DIR_COPY_OPTIONS)?;
-    }
-    else {
+    } else {
         bail!("{:?} is not a file nor directory", src);
     }
     Ok(())
 }
 
-
 /// produce relative subpaths under a directory which match a regex
 fn filter_input_dir<'a>(
-    input_dir: &'a PathBuf, filter: &'a Regex
-) -> impl Iterator<Item = (PathBuf, PathBuf)> +'a {
-    WalkDir::new(input_dir).into_iter()
+    input_dir: &'a PathBuf,
+    filter: &'a Regex,
+) -> impl Iterator<Item = (PathBuf, PathBuf)> + 'a {
+    WalkDir::new(input_dir)
+        .into_iter()
         .map(|e| e.unwrap().into_path())
         .map(move |p| ((p.strip_prefix(input_dir).unwrap()).to_owned(), p))
         .filter(|e| filter.is_match(e.0.to_string_lossy().as_ref()))
