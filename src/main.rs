@@ -3,11 +3,10 @@ use ansi_term::Colour::{Cyan, Green};
 use ansi_term::Style;
 use anyhow::{bail, Context, Ok, Result};
 use clap::Parser;
-use fs_extra;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::fs::create_dir_all;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 #[derive(Parser)]
@@ -62,7 +61,7 @@ fn main() -> Result<()> {
     if !args.output_dir.is_dir() {
         bail!("not a directory: {:?}", args.output_dir);
     }
-    if !args.output_dir.read_dir()?.next().is_none() {
+    if args.output_dir.read_dir()?.next().is_some() {
         bail!("not empty: {:?}", args.output_dir);
     }
 
@@ -106,7 +105,7 @@ fn main() -> Result<()> {
 }
 
 /// Pretty much `cp -r $1 $2`
-fn cpr(src: &PathBuf, dst: &PathBuf) -> Result<()> {
+fn cpr(src: &Path, dst: &Path) -> Result<()> {
     let parent_dir = dst.parent().unwrap();
     create_dir_all(parent_dir)
         .with_context(|| format!("Could not create parent directory {:?}", parent_dir))?;
@@ -122,7 +121,7 @@ fn cpr(src: &PathBuf, dst: &PathBuf) -> Result<()> {
 
 /// produce relative subpaths under a directory which match a regex
 fn filter_input_dir<'a>(
-    input_dir: &'a PathBuf,
+    input_dir: &'a Path,
     filter: &'a Regex,
 ) -> impl Iterator<Item = (PathBuf, PathBuf)> + 'a {
     WalkDir::new(input_dir)
@@ -132,7 +131,7 @@ fn filter_input_dir<'a>(
         .filter(|e| filter.is_match(e.0.to_string_lossy().as_ref()))
 }
 
-fn pretty_print(input_pre: &str, output_pre: &str, src: &PathBuf, dst: &str) {
+fn pretty_print(input_pre: &str, output_pre: &str, src: &Path, dst: &str) {
     println!(
         "{}/{} {} {}/{}",
         input_pre,
