@@ -1,7 +1,7 @@
-use owo_colors::OwoColorize;
 use anyhow::{bail, Context, Ok, Result};
 use clap::Parser;
 use lazy_static::lazy_static;
+use owo_colors::OwoColorize;
 use regex::Regex;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
@@ -12,8 +12,7 @@ use walkdir::WalkDir;
     author,
     version,
     about = "Bulk rename using regular expressions",
-    long_about =
-    "A fast and simple tool for copying data from an input directory to \
+    long_about = "A fast and simple tool for copying data from an input directory to \
     an output directory under different paths based on regular expressions. \
     The syntax is based on the \"regex\" crate: see \
     https://docs.rs/regex/1.5.5/regex/#grouping-and-flags",
@@ -130,7 +129,9 @@ fn filter_input_dir<'a>(
 }
 
 fn pretty_print(input_pre: &str, output_pre: &str, src: &Path, dst: &str) -> Result<()> {
-    let src_name = src.to_str().with_context(|| format!("path is non-unicode: {:?}", src))?;
+    let src_name = src
+        .to_str()
+        .with_context(|| format!("path is non-unicode: {:?}", src))?;
     println!(
         "{}/{} {} {}/{}",
         input_pre,
