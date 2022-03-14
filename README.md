@@ -68,7 +68,11 @@ bulkrename --filter '^[abc]$' \
            examples/input examples/dirwise
 ```
 
-### Use Case
+### Recipes
+
+Pracitcal walkthroughs of how to use `pl-bulk-rename` in _ChRIS_ feeds.
+
+#### Restack joined branches following `pl-topologicalcopy --groupByInstance`
 
 Factor levels (i.e. the independent variable) of a data experiment are
 represented in a  _ChRIS_ feed as parallel/sibling branches of a tree.
@@ -142,11 +146,77 @@ The whole feed for the experiment will look something like
     \ | /
       O      id=7  pl-topologicalcopy --plugininstances 4,5,6 --groupByInstance
       |
-      O      id=8  pl-bulk-rename --filter      '.*\.dat'              \
-      |                           --expression  '^(\d+)/(.*)(\.dat)$'  \
-      |                           --replace     '$2/plinst$1$3'
+      O      id=8  pl-bulk-rename     --filter '.*\.dat'              \
+      |                           --expression '^(\d+)/(.*)(\.dat)$'  \
+      |                              --replace '$2/plinst$1$3'
       |
       O      id=9  pl-aggregate-stats
       |
       O      id=10 pl-plot-data
+```
+
+
+
+#### Rename multiple files in subdirectories
+
+Continuing from above, you might want to rename the data files in
+each subdirectory.
+
+```
+inputdir/
+├── subject1
+│   ├── plinst4.dat
+│   ├── plinst5.dat
+│   └── plinst6.dat
+├── subject2
+│   ├── plinst4.dat
+│   ├── plinst5.dat
+│   └── plinst6.dat
+└── subject3
+    ├── plinst4.dat
+    ├── plinst5.dat
+    └── plinst6.dat
+```
+
+These file names aren't too helpful. We want to rename them
+to be descriptive of how they were produced instead of referring
+to them by _ChRIS_ plugin instance IDs,
+e.g. rename `plinst4.dat` to `experiment_factor_0.05_result.dat`.
+
+```
+inputdir/
+├── subject1
+│   ├── experiment_factor_0.05_result.dat
+│   ├── experiment_factor_0.10_result.dat
+│   └── experiment_factor_0.15_result.dat
+├── subject2
+│   ├── experiment_factor_0.05_result.dat
+│   ├── experiment_factor_0.10_result.dat
+│   └── experiment_factor_0.15_result.dat
+└── subject3
+    ├── experiment_factor_0.05_result.dat
+    ├── experiment_factor_0.10_result.dat
+    └── experiment_factor_0.15_result.dat
+```
+
+For each factor, call `pl-bulk-rename` to map `plinstN` to `experiment_factor_M_result`.
+
+```
+      O      id=8
+    / | \
+   /  |  \
+  O   |   |  id=11  pl-bulk-rename     --filter '.*/plinst4\.dat$'  \
+  |   |   |                        --expression '^(.*)/(.*)$'       \
+  |   |   |                           --replace '$1/experiment_factor_0.05_result.dat'
+  |   |   |
+  |   O   |  id=12  pl-bulk-rename     --filter '.*/plinst5\.dat$'  \
+  |   |   |                        --expression '^(.*)/(.*)$'       \
+  |   |   |                           --replace '$1/experiment_factor_0.10_result.dat'
+  |   |   |
+  |   |   O  id=13  pl-bulk-rename     --filter '.*/plinst6\.dat$'  \
+  |   |   |                        --expression '^(.*)/(.*)$'       \
+  |   |   |                           --replace '$1/experiment_factor_0.15_result.dat'
+   \  |  /
+    \ | /
+      O      id=14  pl-topologicalcopy --plugininstances 11,12,13
 ```
