@@ -12,7 +12,11 @@ use walkdir::WalkDir;
     author,
     version,
     about = "Bulk rename using regular expressions",
-    long_about = "A fast and simple tool for copying data from an input directory to an output directory under different paths based on regular expressions.\nThe syntax is based on the \"regex\" crate: see https://docs.rs/regex/1.5.5/regex/#grouping-and-flags",
+    long_about =
+    "A fast and simple tool for copying data from an input directory to \
+    an output directory under different paths based on regular expressions. \
+    The syntax is based on the \"regex\" crate: see \
+    https://docs.rs/regex/1.5.5/regex/#grouping-and-flags",
     propagate_version = true,
     disable_help_subcommand = true
 )]
