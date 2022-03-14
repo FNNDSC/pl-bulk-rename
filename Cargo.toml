@@ -15,7 +15,7 @@ categories = ["command-line-utilities"]
 clap = { version = "3.1.6", features = ["derive"] }
 fs_extra = "1.2.0"
 regex = "1.5.5"
-ansi_term = "0.12"
+owo-colors = "3.2.0"
 walkdir = "2.3.2"
 anyhow = "1.0.56"
 lazy_static = "1.4.0"

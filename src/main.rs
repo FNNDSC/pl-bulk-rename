@@ -1,6 +1,4 @@
-use ansi_term::ANSIString;
-use ansi_term::Colour::{Cyan, Green};
-use ansi_term::Style;
+use owo_colors::OwoColorize;
 use anyhow::{bail, Context, Ok, Result};
 use clap::Parser;
 use lazy_static::lazy_static;
@@ -30,10 +28,6 @@ struct Cli {
     /// Replacement string with capture groups
     #[clap(short, long)]
     replace: String,
-
-    /// Silence output
-    #[clap(short, long)]
-    quiet: bool,
 
     /// deprecated ChRIS flag. Does nothing.
     #[clap(long)]
@@ -90,7 +84,7 @@ fn main() -> Result<()> {
         }
 
         cpr(&input_path, &output_path)?;
-        pretty_print(input_pre, output_pre, &rel, &renamed);
+        pretty_print(input_pre, output_pre, &rel, &renamed)?;
         did_nothing = false;
     }
 
@@ -131,19 +125,21 @@ fn filter_input_dir<'a>(
         .filter(|e| filter.is_match(e.0.to_string_lossy().as_ref()))
 }
 
-fn pretty_print(input_pre: &str, output_pre: &str, src: &Path, dst: &str) {
+fn pretty_print(input_pre: &str, output_pre: &str, src: &Path, dst: &str) -> Result<()> {
+    let src_name = src.to_str().with_context(|| format!("path is non-unicode: {:?}", src))?;
     println!(
         "{}/{} {} {}/{}",
         input_pre,
-        Cyan.paint(src.to_str().unwrap()),
+        src_name.cyan(),
         *DIM_ARROW,
         output_pre,
-        Green.paint(dst)
-    )
+        dst.green()
+    );
+    Ok(())
 }
 
 lazy_static! {
-    static ref DIM_ARROW: ANSIString<'static> = Style::new().dimmed().paint("->");
+    static ref DIM_ARROW: owo_colors::styles::DimDisplay<'static, &'static str> = "->".dimmed();
     static ref FILE_COPY_OPTIONS: fs_extra::file::CopyOptions = fs_extra::file::CopyOptions::new();
     // static ref DIR_COPY_OPTIONS: fs_extra::dir::CopyOptions = fs_extra::dir::CopyOptions::new();
     static ref DIR_COPY_OPTIONS: fs_extra::dir::CopyOptions = fs_extra::dir::CopyOptions{
