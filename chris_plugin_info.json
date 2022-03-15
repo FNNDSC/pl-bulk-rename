@@ -42,7 +42,7 @@
   "description": "A ChRIS plugin to rename paths using regex",
   "documentation": "https://github.com/FNNDSC/pl-bulk-rename",
   "license": "MIT",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "selfpath": "/usr/local/bin",
   "selfexec": "bulkrename",
   "execshell": "/docker-entrypoint.sh",
